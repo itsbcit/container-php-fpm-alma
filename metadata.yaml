@@ -65,7 +65,7 @@ vars:
     - gmp
     - imap
     - intl
-    - json
+    # - json
     - ldap
     - mbstring
     - mysqlnd
@@ -81,7 +81,7 @@ vars:
     - sodium
     - tidy
     - xml
-    - xmlrpc
+    # - xmlrpc
   php_pecl_builds:
     - name: timezonedb
       order: 20
