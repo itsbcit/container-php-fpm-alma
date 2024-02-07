@@ -26,8 +26,8 @@ RUN dnf -y  install \
   && rm -rf /var/cache/dnf
 
 <% image.vars['php_pecl_builds'].each do |pecl| -%>
-COPY --from=local/php-fpm:<%= image.version %>-alma-builder-b<%= image.build_id %> /etc/php.d/<%= pecl['order'] %>-<%= pecl['name'] %>.ini /etc/php.d/<%= pecl['order'] %>-<%= pecl['name'] %>.ini
-COPY --from=local/php-fpm:<%= image.version %>-alma-builder-b<%= image.build_id %> /usr/lib64/php/modules/<%= pecl['name'] %>.so /usr/lib64/php/modules/<%= pecl['name'] %>.so
+COPY --from=local/php-fpm-alma:<%= image.version %>-alma-builder-b<%= image.build_id %> /etc/php.d/<%= pecl['order'] %>-<%= pecl['name'] %>.ini /etc/php.d/<%= pecl['order'] %>-<%= pecl['name'] %>.ini
+COPY --from=local/php-fpm-alma:<%= image.version %>-alma-builder-b<%= image.build_id %> /usr/lib64/php/modules/<%= pecl['name'] %>.so /usr/lib64/php/modules/<%= pecl['name'] %>.so
 <% end -%>
 
 ADD https://raw.githubusercontent.com/php/php-src/PHP-<%= image.vars['php_version'] %>/php.ini-development /etc/php.ini-development
