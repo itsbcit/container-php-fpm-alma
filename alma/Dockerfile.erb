@@ -9,6 +9,7 @@ RUN dnf -y  install \
     http://rpms.remirepo.net/enterprise/remi-release-9.rpm \
   && rpmkeys --import /etc/pki/rpm-gpg/RPM-GPG-KEY-remi* /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-<%= image.vars['alma_version'] %> \
   # && 	dnf config-manager -q --enable remi remi-php<%= image.vars['remi_php_repo'] -%> >/dev/null \
+  && dnf config-manager --set-enabled crb \
   && dnf module reset php \
   && dnf module enable -y php:remi-<%= image.version %> \
   && dnf -y install \
