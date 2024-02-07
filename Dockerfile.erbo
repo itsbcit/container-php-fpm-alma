@@ -1,4 +1,4 @@
-FROM busybox
+FROM bcit.io/almalinux:9-latest
 
 <%= snippet('labels', binding) -%>
 

@@ -1,0 +1,62 @@
+FROM bcit.io/almalinux:<%= image.vars['alma_tag'] %>
+
+ENV DISABLE_EXTENSIONS="xdebug curl enchant exif ftp gd imap ldap odbc snmp sysvmsg sysvsem sysvshm pdo_odbc amqp ast imagick mailparse ssh2 vips zmq couchbase"
+ENV ENABLE_EXTENSIONS=""
+
+<%= snippet('labels', binding) -%>
+
+RUN dnf -y  install \
+    http://rpms.remirepo.net/enterprise/remi-release-9.rpm \
+  && rpmkeys --import /etc/pki/rpm-gpg/RPM-GPG-KEY-remi* /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-<%= image.vars['alma_version'] %> \
+  # && 	dnf config-manager -q --enable remi remi-php<%= image.vars['remi_php_repo'] -%> >/dev/null \
+  && dnf module reset php \
+  && dnf module enable -y php:remi-<%= image.version %> \
+  && dnf -y install \
+<% image.vars['os_packages'].each do |package| -%>
+    <%= package %> \
+<% end -%>
+<% image.vars['php_extensions'].each do |ext| -%>
+    php-<%= ext %>-<%= image.vars['php_version'] -%> \
+<% end -%>
+<% image.vars['php_pecl'].each do |ext| -%>
+    php-pecl-<%= ext -%> \
+<% end -%>
+    php-<%= image.vars['php_version'] -%> \
+    php-pear \
+  && rm -rf /var/cache/dnf
+
+<% image.vars['php_pecl_builds'].each do |pecl| -%>
+COPY --from=local/php-fpm:<%= image.version %>-alma-builder-b<%= image.build_id %> /etc/php.d/<%= pecl['order'] %>-<%= pecl['name'] %>.ini /etc/php.d/<%= pecl['order'] %>-<%= pecl['name'] %>.ini
+COPY --from=local/php-fpm:<%= image.version %>-alma-builder-b<%= image.build_id %> /usr/lib64/php/modules/<%= pecl['name'] %>.so /usr/lib64/php/modules/<%= pecl['name'] %>.so
+<% end -%>
+
+ADD https://raw.githubusercontent.com/php/php-src/PHP-<%= image.vars['php_version'] %>/php.ini-development /etc/php.ini-development
+ADD https://raw.githubusercontent.com/docker-library/php/master/docker-php-ext-enable /usr/local/bin/docker-php-ext-enable
+ADD https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck /usr/local/bin/php-fpm-healthcheck
+ADD zz-docker.conf /etc/php-fpm.d/zz-docker.conf
+ADD docker.conf /etc/php-fpm.d/docker.conf
+ADD www.conf /etc/php-fpm.d/www.conf
+ADD 50-copy-php-fpm-config.sh /docker-entrypoint.d/50-copy-php-fpm-config.sh
+ADD 60-php_extensions.sh /docker-entrypoint.d/60-php_extensions.sh
+ADD php.ini-development /etc/php.ini-development
+
+# Set timezone, install composer, configure php-fpm 
+# ENV TZ=America/Vancouver - set in docker-compose.yml
+RUN ln -snf /usr/share/zoneinfo/<%= image.vars['timezone'] -%> /etc/localtime \
+ && echo <%= image.vars['timezone'] -%> > /etc/timezone \
+ && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+ && mkdir -p /run/php-fpm/ \
+ && chmod -R 775 \ 
+      /run/php-fpm \
+      /etc/php-fpm.d \
+      /etc/php.d \
+      /usr/local/bin/docker-php-ext-enable \
+      /usr/local/bin/php-fpm-healthcheck \
+ && chmod 664 \
+      /etc/php.ini \
+      /etc/php.ini-development 
+
+WORKDIR /application
+HEALTHCHECK CMD /usr/local/bin/php-fpm-healthcheck
+
+CMD ["/usr/sbin/php-fpm", "-F", "-O", "-y", "/etc/php-fpm.conf"]

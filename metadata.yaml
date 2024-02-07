@@ -1,10 +1,147 @@
 ---
-image_name: template_test
+image_name: php-fpm-alma
 registries:
   - url: bcit.io
 labels:
   maintainer: "jesse@weisner.ca, chriswood.ca@gmail.com"
+  php_version: '<%= vars["php_version"] %>'
+  alma_version: '<%= vars["alma_version"] %>'
 vars:
   tini_version: '0.19.0'
   de_version: '1.5'
   dockerize_version: '0.6.1'
+base_tags: []
+tags:
+versions:
+  '8.1':
+    vars:
+      oracle-instantclient_version: '19.6'
+      remi_php_repo: '81'
+      php_version: '8.1.27'
+  '8.2':
+    vars:
+      oracle-instantclient_version: '19.6'
+      remi_php_repo: '82'
+      php_version: '8.2.15' 
+      php_pecl:
+        - wddx
+  '8.3':
+    vars:
+      oracle-instantclient_version: '19.6'
+      remi_php_repo: '83'
+      php_version: '8.3.2' 
+      php_pecl:
+        - wddx
+    variants:
+      alma:
+        tags:
+          - '9-alma-latest'
+          - '9-thicc-latest'
+          - '9-alma'
+          - '9-thicc'
+          - 'alma-latest'
+          - 'thicc-latest'
+          - 'alma'
+          - 'thicc'
+vars:
+  alma_version: '9'
+  alma_tag: '9-latest'
+  timezone: 'America/Vancouver'
+  os_packages:
+    - bzip2
+    - fcgiwrap
+    - unzip
+    - vim
+    - zip
+  builder_packages:
+    - gcc
+    - php-pear
+  php_extensions:
+    - bcmath
+    - dba
+    - enchant
+    - fpm
+    - gd
+    - gmp
+    - imap
+    - intl
+    - json
+    - ldap
+    - mbstring
+    - mysqlnd
+    - odbc
+    - opcache
+    - pdo
+    - pdo-dblib
+    - process
+    - pgsql
+    - pspell
+    - snmp
+    - soap
+    - sodium
+    - tidy
+    - xml
+    - xmlrpc
+  php_pecl_builds:
+    - name: timezonedb
+      order: 20
+  php_pecl:
+    - amqp
+    - ast
+    - couchbase
+    - event
+    - igbinary
+    - imagick
+    - lzf
+    - mailparse
+    - mcrypt
+    - memcached
+    - msgpack
+    - oauth
+    - protobuf
+    - redis
+    - ssh2
+    # - timezonedb # TODO: needs custom build?
+    - vips
+    - xdebug
+    - yaml
+    - zip
+    - zmq
+  php_pear:
+    - mail_mime
+    - mdb2_driver_mysql
+    - auth_sasl2
+    - net_socket
+    - mdb2_driver_pgsql
+    - net_snmp
+    - net_smtp
+    - net_idna2
+    - auth_sasl
+    - net_smtp
+    - net_sieve
+variants:
+  alma-builder:
+    test: false
+    tag: false
+    push: false
+  alma:
+    tags:
+      - '<%= tag_join(version, variant, build_suffix) %>'
+      - '<%= tag_join(version, variant, "latest") %>'
+      - '<%= tag_join(version, variant) %>'
+      - '<%= tag_join(vars["php_version"], "thicc", build_suffix) %>'
+      - '<%= tag_join(vars["php_version"], "thicc", "latest") %>'
+      - '<%= tag_join(vars["php_version"], "thicc") %>'
+      - '<%= tag_join(version, "thicc", "latest") %>'
+      - '<%= tag_join(version, "thicc") %>'
+  debug:
+    tag: false
+    push: false
+    test: false
+    tags:
+      - '<%= tag_join(version, "alma", variant, build_suffix) %>'
+      - '<%= tag_join(version, "alma", variant, "latest") %>'
+      - '<%= tag_join(version, "alma", variant) %>'
+      - '<%= tag_join(vars["php_version"], "alma", variant, build_suffix) %>'
+      - '<%= tag_join(vars["php_version"], "alma", variant, "latest") %>'
+      - '<%= tag_join(vars["php_version"], "alma", variant) %>'
