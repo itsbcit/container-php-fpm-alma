@@ -1,1 +1,1 @@
-FROM local/php-fpm:8.2-centos-b1707332622
+FROM local/php-fpm-alma:8.2-alma-b1707339354

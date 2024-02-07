@@ -23,15 +23,11 @@ versions:
       oracle-instantclient_version: '19.6'
       remi_php_repo: '82'
       php_version: '8.2.15' 
-      php_pecl:
-        - wddx
   '8.3':
     vars:
       oracle-instantclient_version: '19.6'
       remi_php_repo: '83'
       php_version: '8.3.2' 
-      php_pecl:
-        - wddx
     variants:
       alma:
         tags:
@@ -65,7 +61,6 @@ vars:
     - gmp
     - imap
     - intl
-    # - json
     - ldap
     - mbstring
     - mysqlnd
@@ -81,7 +76,6 @@ vars:
     - sodium
     - tidy
     - xml
-    # - xmlrpc
   php_pecl_builds:
     - name: timezonedb
       order: 20
