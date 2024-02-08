@@ -1,7 +1,7 @@
 FROM bcit.io/almalinux:<%= image.vars['alma_tag'] %> as BUILDER
 
 RUN dnf -y  install \
-    http://rpms.remirepo.net/enterprise/remi-release-9.rpm \
+    http://rpms.remirepo.net/enterprise/remi-release-<%= image.vars['alma_version'] %>.rpm \
  && rpmkeys --import /etc/pki/rpm-gpg/RPM-GPG-KEY-remi* /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-<%= image.vars['alma_version'] %> \
 #  && dnf config-manager -q --enable remi-php<%= image.vars['remi_php_repo'] -%> >/dev/null \
  && dnf module reset php \

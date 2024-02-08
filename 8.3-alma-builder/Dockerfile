@@ -1,8 +1,8 @@
-FROM bcit.io/almalinux:9-latest as BUILDER
+FROM bcit.io/almalinux:8-latest as BUILDER
 
 RUN dnf -y  install \
-    http://rpms.remirepo.net/enterprise/remi-release-9.rpm \
- && rpmkeys --import /etc/pki/rpm-gpg/RPM-GPG-KEY-remi* /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-9 \
+    http://rpms.remirepo.net/enterprise/remi-release-8.rpm \
+ && rpmkeys --import /etc/pki/rpm-gpg/RPM-GPG-KEY-remi* /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8 \
 #  && dnf config-manager -q --enable remi-php83 >/dev/null \
  && dnf module reset php \
  && dnf module enable -y php:remi-8.3 \

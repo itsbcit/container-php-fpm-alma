@@ -15,17 +15,17 @@ tags:
 versions:
   '8.1':
     vars:
-      oracle-instantclient_version: '19.6'
+      oracle-instantclient_version: '21'
       remi_php_repo: '81'
       php_version: '8.1.27'
   '8.2':
     vars:
-      oracle-instantclient_version: '19.6'
+      oracle-instantclient_version: '21'
       remi_php_repo: '82'
       php_version: '8.2.15' 
   '8.3':
     vars:
-      oracle-instantclient_version: '19.6'
+      oracle-instantclient_version: '21'
       remi_php_repo: '83'
       php_version: '8.3.2' 
     variants:
@@ -40,8 +40,8 @@ versions:
           - 'alma'
           - 'thicc'
 vars:
-  alma_version: '9'
-  alma_tag: '9-latest'
+  alma_version: '8'
+  alma_tag: '8-latest'
   timezone: 'America/Vancouver'
   os_packages:
     - bzip2

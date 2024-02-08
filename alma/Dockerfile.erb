@@ -1,15 +1,16 @@
 FROM bcit.io/almalinux:<%= image.vars['alma_tag'] %>
 
-ENV DISABLE_EXTENSIONS="xdebug curl enchant exif ftp gd imap ldap odbc snmp sysvmsg sysvsem sysvshm pdo_odbc amqp ast imagick mailparse ssh2 vips zmq couchbase"
+ENV DISABLE_EXTENSIONS="xdebug curl enchant exif ftp gd imap ldap odbc snmp sysvmsg sysvsem sysvshm pdo_odbc amqp ast imagick mailparse ssh2 vips zmq couchbase oci8"
 ENV ENABLE_EXTENSIONS=""
 
 <%= snippet('labels', binding) -%>
 
+# PHP
 RUN dnf -y  install \
-    http://rpms.remirepo.net/enterprise/remi-release-9.rpm \
+    http://rpms.remirepo.net/enterprise/remi-release-<%= image.vars['alma_version'] %>.rpm \
   && rpmkeys --import /etc/pki/rpm-gpg/RPM-GPG-KEY-remi* /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-<%= image.vars['alma_version'] %> \
-  # && 	dnf config-manager -q --enable remi remi-php<%= image.vars['remi_php_repo'] -%> >/dev/null \
-  && dnf config-manager --set-enabled crb \
+  && 	dnf config-manager -q --enable remi >/dev/null \
+  && dnf config-manager --set-enabled powertools \
   && dnf module reset php \
   && dnf module enable -y php:remi-<%= image.version %> \
   && dnf -y install \
@@ -26,11 +27,26 @@ RUN dnf -y  install \
     php-pear \
   && rm -rf /var/cache/dnf
 
+# PECL
 <% image.vars['php_pecl_builds'].each do |pecl| -%>
 COPY --from=local/php-fpm-alma:<%= image.version %>-alma-builder-b<%= image.build_id %> /etc/php.d/<%= pecl['order'] %>-<%= pecl['name'] %>.ini /etc/php.d/<%= pecl['order'] %>-<%= pecl['name'] %>.ini
 COPY --from=local/php-fpm-alma:<%= image.version %>-alma-builder-b<%= image.build_id %> /usr/lib64/php/modules/<%= pecl['name'] %>.so /usr/lib64/php/modules/<%= pecl['name'] %>.so
 <% end -%>
 
+# OCI / Instant Client
+ADD instantclient.repo /etc/yum.repos.d/instantclient.repo
+ADD https://yum.oracle.com/RPM-GPG-KEY-oracle-ol8 /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+RUN rpmkeys --import /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle \
+ && dnf -y -d2 install \
+    php-oci8 \
+    oracle-instantclient-basic \
+    oracle-instantclient-devel \
+    oracle-instantclient-sqlplus \
+#  && rm -rf /var/cache/yum \
+ && echo /usr/lib/oracle/<%= image.vars['oracle-instantclient_version'] -%>/client64/lib > /etc/ld.so.conf.d/oracle-instantclient.conf \
+ && ldconfig
+
+## PHP configs
 ADD https://raw.githubusercontent.com/php/php-src/PHP-<%= image.vars['php_version'] %>/php.ini-development /etc/php.ini-development
 ADD https://raw.githubusercontent.com/docker-library/php/master/docker-php-ext-enable /usr/local/bin/docker-php-ext-enable
 ADD https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck /usr/local/bin/php-fpm-healthcheck
